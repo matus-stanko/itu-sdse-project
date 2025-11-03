@@ -1,0 +1,17 @@
+/raw_data.csv
+
+# Ignore data & models 
+data/
+models/
+
+# keep DVC tracking files
+!data/**/*.dvc
+!models/**/*.dvc
+!.dvcignore
+
+# Jupyter cache
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
