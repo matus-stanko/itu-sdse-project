@@ -2,3 +2,6 @@ itu_sdse_project/artifacts/*
 !itu_sdse_project/artifacts/lead_model_lr.pkl
 itu_sdse_project/mlruns/
 .DS_Store
+
+
+data/raw/raw_data.csv
