@@ -46,10 +46,11 @@ func main() {
 	// model by mal byť vytvorený v /src/model/model.pkl
 	modelFile := py.File("/src/model/model.pkl")
 
-	// exportni ho späť na hosta do root/model/model.pkl
-	if _, err := modelFile.Export(ctx, "model/model.pkl"); err != nil {
+	// exportni ho do root/model/model.pkl
+	// z pohľadu priečinka `go/` je root = ".."
+	if _, err := modelFile.Export(ctx, "../model/model.pkl"); err != nil {
 		log.Fatalf("failed to export model: %v", err)
 	}
 
-	fmt.Println("✅ Dagger pipeline finished, model saved to model/model.pkl")
+	fmt.Println("✅ Dagger pipeline finished, model saved to root/model/model.pkl")
 }
