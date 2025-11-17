@@ -1,3 +1,4 @@
-itu_sdse_project/artifacts/
+itu_sdse_project/artifacts/*
+!itu_sdse_project/artifacts/lead_model.lr.pkl
 itu_sdse_project/mlruns/
 .DS_Store
