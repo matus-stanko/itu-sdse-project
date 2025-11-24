@@ -8,6 +8,7 @@ import json
 
 #RAW_DATA_PATH = '../data/raw/raw_data.csv'
 RAW_DATA_PATH = 'data/raw/raw_data.csv'
+
 MIN_DATE = "2024-01-01"
 MAX_DATE = "2024-01-31"
 
