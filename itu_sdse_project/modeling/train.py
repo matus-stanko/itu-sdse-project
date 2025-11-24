@@ -142,29 +142,29 @@ def train_XGB(X_train, X_test, y_train, y_test):
 
 
     best_model_xgboost_params = model_grid.best_params_
-    print("Best xgboost params")
-    print(best_model_xgboost_params)
+    # print("Best xgboost params")
+    # print(best_model_xgboost_params)
 
     y_pred_train = model_grid.predict(X_train)
     y_pred_test = model_grid.predict(X_test)
-    print("Accuracy train", accuracy_score(y_pred_train, y_train ))
-    print("Accuracy test", accuracy_score(y_pred_test, y_test))
+    # print("Accuracy train", accuracy_score(y_pred_train, y_train ))
+    # print("Accuracy test", accuracy_score(y_pred_test, y_test))
 
 
 
 
 
     conf_matrix = confusion_matrix(y_test, y_pred_test)
-    print("Test actual/predicted\n")
-    print(pd.crosstab(y_test, y_pred_test, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
-    print("Classification report\n")
-    print(classification_report(y_test, y_pred_test),'\n')
+    # print("Test actual/predicted\n")
+    # print(pd.crosstab(y_test, y_pred_test, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
+    # print("Classification report\n")
+    # print(classification_report(y_test, y_pred_test),'\n')
 
     conf_matrix = confusion_matrix(y_train, y_pred_train)
-    print("Train actual/predicted\n")
-    print(pd.crosstab(y_train, y_pred_train, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
-    print("Classification report\n")
-    print(classification_report(y_train, y_pred_train),'\n')
+    # print("Train actual/predicted\n")
+    # print(pd.crosstab(y_train, y_pred_train, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
+    # print("Classification report\n")
+    # print(classification_report(y_train, y_pred_train),'\n')
 
 
 
@@ -202,7 +202,10 @@ def train_LOG(X_train, X_test, y_train, y_test, model_results):
 
     with mlflow.start_run(experiment_id=experiment_id) as run:
         model = LogisticRegression()
-        lr_model_path = "./artifacts/lead_model_lr.pkl"
+
+        # Create model folder if not exists
+        os.makedirs("model", exist_ok=True)
+        lr_model_path = "model/model.pkl"
 
         params = {
                 'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
@@ -225,36 +228,38 @@ def train_LOG(X_train, X_test, y_train, y_test, model_results):
         mlflow.log_param("data_version", "00000")
         
         # store model for model interpretability
-        joblib.dump(value=model, filename=lr_model_path)
+        #joblib.dump(value=model, filename=lr_model_path)
+        joblib.dump(value=best_model, filename=lr_model_path)
             
         # Custom python model for predicting probability 
-        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
+        ###mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
 
 
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
 
     best_model_lr_params = model_grid.best_params_
 
-    print("Best lr params")
-    print(best_model_lr_params)
+    # print("Best lr params")
+    # print(best_model_lr_params)
 
-    print("Accuracy train:", accuracy_score(y_pred_train, y_train ))
-    print("Accuracy test:", accuracy_score(y_pred_test, y_test))
+    # print("Accuracy train:", accuracy_score(y_pred_train, y_train ))
+    # print("Accuracy test:", accuracy_score(y_pred_test, y_test))
 
     conf_matrix = confusion_matrix(y_test, y_pred_test)
-    print("Test actual/predicted\n")
-    print(pd.crosstab(y_test, y_pred_test, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
-    print("Classification report\n")
-    print(classification_report(y_test, y_pred_test),'\n')
+    # print("Test actual/predicted\n")
+    # print(pd.crosstab(y_test, y_pred_test, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
+    # print("Classification report\n")
+    # print(classification_report(y_test, y_pred_test),'\n')
 
     conf_matrix = confusion_matrix(y_train, y_pred_train)
-    print("Train actual/predicted\n")
-    print(pd.crosstab(y_train, y_pred_train, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
-    print("Classification report\n")
-    print(classification_report(y_train, y_pred_train),'\n')
+    # print("Train actual/predicted\n")
+    # print(pd.crosstab(y_train, y_pred_train, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
+    # print("Classification report\n")
+    # print(classification_report(y_train, y_pred_train),'\n')
 
     model_results[lr_model_path] = model_classification_report
-    print(model_classification_report["weighted avg"]["f1-score"])
+    #print(model_classification_report["weighted avg"]["f1-score"])
 
 
     return model_results
@@ -277,7 +282,7 @@ def save_artifacts(X_train, model_results):
         print(columns)
         json.dump(columns, columns_file)
 
-    print('Saved column list to ', column_list_path)
+    #print('Saved column list to ', column_list_path)
 
     model_results_path = "./artifacts/model_results.json"
     with open(model_results_path, 'w+') as results_file:
@@ -298,7 +303,7 @@ def wait_until_ready(model_name, model_version):
           version=model_version,
         )
         status = ModelVersionStatus.from_string(model_version_details.status)
-        print(f"Model status: {ModelVersionStatus.to_string(status)}")
+        #print(f"Model status: {ModelVersionStatus.to_string(status)}")
         if status == ModelVersionStatus.READY:
             break
         time.sleep(1)
@@ -351,7 +356,7 @@ def register_best_model():
 
 
     best_model = results_df.sort_values("f1-score", ascending=False).iloc[0].name
-    print(f"Best model: {best_model}")
+    #print(f"Best model: {best_model}")
 
 
 
@@ -364,12 +369,12 @@ def register_best_model():
         prod_model_version = dict(prod_model[0])['version']
         prod_model_run_id = dict(prod_model[0])['run_id']
         
-        print('Production model name: ', model_name)
-        print('Production model version:', prod_model_version)
-        print('Production model run id:', prod_model_run_id)
+        # print('Production model name: ', model_name)
+        # print('Production model version:', prod_model_version)
+        # print('Production model run id:', prod_model_run_id)
         
-    else:
-        print('No model in production')
+    #else:
+        #print('No model in production')
 
 
 
@@ -390,17 +395,17 @@ def register_best_model():
             print("Registering new model")
             run_id = experiment_best["run_id"]
     else:
-        print("No model in production")
+        #print("No model in production")
         run_id = experiment_best["run_id"]
 
-    print(f"Registered model: {run_id}")
+    #print(f"Registered model: {run_id}")
 
 
 
 
 
     if run_id is not None:
-        print(f'Best model found: {run_id}')
+        #print(f'Best model found: {run_id}')
 
         model_uri = "runs:/{run_id}/{artifact_path}".format(
             run_id=run_id,
@@ -409,7 +414,7 @@ def register_best_model():
         model_details = mlflow.register_model(model_uri=model_uri, name=model_name)
         wait_until_ready(model_details.name, model_details.version)
         model_details = dict(model_details)
-        print(model_details)
+        #print(model_details)
 
 
 
@@ -427,7 +432,7 @@ def register_best_model():
                 client.get_model_version(name=model_name,version=model_version)
                 )
             if model_version_details['current_stage'] == stage:
-                print(f'Transition completed to {stage}')
+                #print(f'Transition completed to {stage}')
                 status = True
                 break
             else:
@@ -443,8 +448,8 @@ def register_best_model():
             archive_existing_versions=True
         )
         model_status = wait_for_deployment(model_name, model_version, 'Staging')
-    else:
-        print('Model already in staging')
+    #else:
+        #print('Model already in staging')
 
 
 
