@@ -52,5 +52,5 @@ func main() {
 		log.Fatalf("failed to export model: %v", err)
 	}
 
-	fmt.Println("✅ Dagger pipeline finished, model saved to root/model/model.pkl")
+	fmt.Println("Dagger pipeline finished, model saved to root/model/model.pkl")
 }
