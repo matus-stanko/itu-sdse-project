@@ -1,56 +1,54 @@
 package main
 
-import (
-	"context"
-	"fmt"
-	"log"
-	"os"
+import ( 
+    "context"
+    "fmt"
+    "log"
+    "os"
 
-	"dagger.io/dagger"
+    "dagger.io/dagger"
 )
 
 func main() {
-	ctx := context.Background()
+    ctx := context.Background()
 
-	// pripojenie k Dagger engine
-	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
-	if err != nil {
-		log.Fatalf("failed to connect to Dagger: %v", err)
-	}
-	defer client.Close()
+    // Connects to Dagger engine
+    client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
+    if err != nil { // If connection fails, exit
+        log.Fatalf("failed to connect to Dagger: %v", err)
+    }
+    defer client.Close() // Dagger connection closes when main ends
 
-	// root tvojho repa na hoste je o level vyššie než go/
-	// go/           -> tu beží tento Go kód
-	// .. (= /src)   -> root: tu je requirements.txt, data/, itu_sdse_project/, model/
-	src := client.Host().Directory("..")
+    // Root of the repo is a level higher than go/ dir
+    // Mounts the root into the pipeline
+    src := client.Host().Directory("..")
 
-	// Python container
-	py := client.Container().
-		From("python:3.12-slim").
-		WithDirectory("/src", src). // mountne celý repo root do /src
-		WithWorkdir("/src").        // všetko sa spúšťa z rootu
-		WithEnvVariable("PIP_DISABLE_PIP_VERSION_CHECK", "1")
+    // Python container
+    py := client.Container().
+        From("python:3.12-slim"). // Create a new container based on python 3.12
+        WithDirectory("/src", src). // Mount repo root from host into /src inside container
+        WithWorkdir("/src").        // Sets /src as working directory for commands
+        WithEnvVariable("PIP_DISABLE_PIP_VERSION_CHECK", "1") // Disables pip's warnings
 
-	// nainštaluj dependencies
-	py = py.
-		WithExec([]string{"python", "-m", "pip", "install", "--upgrade", "pip"}).
-		WithExec([]string{"pip", "install", "-r", "requirements.txt", "dvc"})
+    // Upgrade pip to latest ver and install all requirements + dvc
+    py = py.
+        WithExec([]string{"python", "-m", "pip", "install", "--upgrade", "pip"}).
+        WithExec([]string{"pip", "install", "-r", "requirements.txt", "dvc"})
 
-	// spusti DVC + tvoje kroky
-	py = py.
-		WithExec([]string{"dvc", "update", "data/raw/raw_data.csv.dvc"}).
-		WithExec([]string{"python", "itu_sdse_project/dataset.py"}).
-		WithExec([]string{"python", "itu_sdse_project/features.py"}).
-		WithExec([]string{"python", "itu_sdse_project/modeling/train.py"})
+    // Start DVC and update, and then run all the steps
+    py = py.
+        WithExec([]string{"dvc", "update", "data/raw/raw_data.csv.dvc"}).
+        WithExec([]string{"python", "itu_sdse_project/dataset.py"}).
+        WithExec([]string{"python", "itu_sdse_project/features.py"}).
+        WithExec([]string{"python", "itu_sdse_project/modeling/train.py"})
 
-	// model by mal byť vytvorený v /src/model/model.pkl
-	modelFile := py.File("/src/model/model.pkl")
+    // Model in /src/model/model.pkl
+    modelFile := py.File("/src/model/model.pkl")
 
-	// exportni ho do root/model/model.pkl
-	// z pohľadu priečinka `go/` je root = ".."
-	if _, err := modelFile.Export(ctx, "../model/model.pkl"); err != nil {
-		log.Fatalf("failed to export model: %v", err)
-	}
+    // Copies model file from container back to the host machine at ../model/model.pkl
+    if _, err := modelFile.Export(ctx, "../model/model.pkl"); err != nil {
+        log.Fatalf("failed to export model: %v", err)
+    }
 
-	fmt.Println("Dagger pipeline finished, model saved to root/model/model.pkl")
+    fmt.Println("Dagger pipeline finished, model saved to root/model/model.pkl")
 }
