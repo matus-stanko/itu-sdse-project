@@ -158,9 +158,14 @@ def train_LOG(X_train, X_test, y_train, y_test, model_results):
     with mlflow.start_run(experiment_id=experiment_id) as run:
         model = LogisticRegression()
 
-        # Create model folder if not exists
-        os.makedirs("model", exist_ok=True)
-        lr_model_path = "model/model.pkl"
+        # Create model folder if not exists (commented out to define path relative to repo root)
+        #os.makedirs("model", exist_ok=True)
+        #lr_model_path = "model/model.pkl"
+
+        # Define path relative to repo root
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        os.makedirs(os.path.join(repo_root, "model"), exist_ok=True)
+        lr_model_path = os.path.join(repo_root, "model", "model.pkl")
 
         params = {
                 'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
