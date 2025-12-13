@@ -5,3 +5,5 @@ itu_sdse_project/mlruns/
 
 
 data/raw/raw_data.csv
+
+model/
