@@ -1,4 +1,4 @@
-name: Train with Dagger
+name: Model training and validation
 
 on:
   push:
@@ -18,8 +18,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache-dependency-path: go/go.sum
 
-      - name: Run pipeline via Dagger Action
+      - name: Run pipeline with dagger
         uses: dagger/dagger-for-github@v8.2.0
         with:
           version: "latest"
@@ -27,11 +28,22 @@ jobs:
           verb: run
           args: go run .
 
-      - name: Upload model
+      - name: Upload model (.pkl) artifact
         uses: actions/upload-artifact@v4
         with:
           name: model
           path: model/model.pkl
 
-      - name: Validate model
+  validate:
+    runs-on: ubuntu-latest
+    needs: train
+
+    steps:
+      - name: Download model (.pkl) artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: model
+          path: model
+
+      - name: Validate model 
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
