@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache-dependency-path: go/go.sum
 
       - name: Run pipeline with dagger
         uses: dagger/dagger-for-github@v8.2.0
