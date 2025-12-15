@@ -23,9 +23,9 @@ The pipeline automatically updates the dataset, trains a model, and validates th
 │       └── raw_data.csv.dvc      # DVC-tracked raw dataset
 │
 ├── docs
-│   ├── diagrams.excalidraw       # editable architecture diagrams
+│   ├── diagrams.excalidraw       # diagrams
 │   ├── docs
-│   │   └── index.md              # mkdocs main page
+│   │   └── index.md              # documentation
 │   ├── mkdocs.yml                # mkdocs configuration
 │   ├── project-architecture.png  # rendered architecture diagram
 │   └── README.md                 # documentation-specific README
@@ -46,7 +46,7 @@ The pipeline automatically updates the dataset, trains a model, and validates th
 ├── Makefile                      
 ├── model
 │   └── model.pkl                 # trained model artifact (CI output) / not tracked by git / 
-├── pyproject.toml                # project & tooling configuration
+├── pyproject.toml                # project and tooling configuration
 ├── requirements.txt              # Python dependencies
 └── README.md                     
 ```
@@ -54,16 +54,18 @@ The pipeline automatically updates the dataset, trains a model, and validates th
 
 ## Dagger Workflow
 
-The Dagger workflow is implemented in Go and located in the `go/`.
+The Dagger workflow is implemented in Go and located in the `go/` folder.
 It defines a pipeline for handling:
 - Setting up the Python environment
 - Installing dependencies
-- Runnning the python code
+- Runnning the python scripts
 - Producing a trained model artifact
 
-- Run locally:
-    - cd go
-    - go run .
+**Run locally:**
+```bash
+cd go
+go run .
+```
 
 ## GitHub Actions
 
@@ -72,11 +74,11 @@ GitHub Actions were used to automate the workflow:
 - The trained model is uploaded as a GitHub artifact named `model`
 - The provided model validation action is used to test the trained model
 
-- Trigger - Runs automatically on:
-    - pushes to the `main` branch
-    - pull requests targeting `main`
-- Jobs:
-    - train
-    - validate
+**Trigger – Runs automatically on:**
+- pushes to the `main` branch
+- pull requests targeting `main`
 
+**Jobs:**
+- train
+- validate
 
