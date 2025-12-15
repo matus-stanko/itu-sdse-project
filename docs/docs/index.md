@@ -1,10 +1,58 @@
 # itu-sdse-project documentation!
 
-## Description
+# Project Documentation
 
-A short description of the project.
+## Overview
+This project demonstrates how a notebook-based machine learning prototype can be refactored into a production-ready MLOps pipeline.
 
-## Commands
+The pipeline is fully automated using Dagger and GitHub Actions and is triggered on changes to the main branch.
 
-The Makefile contains the central entry points for common tasks related to this project.
+## Architecture
+The project consists of the following main components:
+- Python scripts for data processing, feature engineering, and model training
+- A Dagger pipeline implemented in Go to orchestrate the workflow including running on VM using docker
+- GitHub Actions for continuous integration and automated validation
+- DVC for data versioning and reproducibility
 
+An architecture diagram is provided in the documentation directory by teacher.
+
+## Data
+The DVC file is stored in the `data/raw` directory.
+This ensures that changes to the dataset are tracked and that experiments can be reproduced.
+
+## Training Pipeline
+The training pipeline follows these steps:
+1. Setup linux machine using docker
+2. Set up a clean Python environment
+3. Install required dependencies
+4. Load and preprocess the dataset
+5. Train the machine learning model
+
+The pipeline can be executed both locally and in CI.
+
+## Model
+The trained model is produced as a artifact and stored as part of the CI workflow.
+Model validation is performed using the provided model validation GitHub Action.
+
+## CI/CD
+Continuous integration is implemented using GitHub Actions.
+On every push or pull request to the `main` branch 2 jobs are executed.
+Train:  
+- the Dagger pipeline is executed
+- a new model is trained
+- the trained model is uploaded as a GitHub artifact
+Validate:
+- the model is validated on using teachers validator.
+
+## Reproducibility
+Reproducibility is achieved through:
+- DVC-tracked datasets
+- Python dependencies
+- automated pipelines
+
+## Running Locally
+To run the pipeline locally:
+```bash
+cd go
+go run .
+```
