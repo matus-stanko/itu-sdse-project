@@ -1,61 +1,82 @@
 # itu-sdse-project
+## Data Science in Production: MLOps and Software Engineering - Project
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-A short description of the project.
+## Project Description
+
+The goal of the project is to refactor the original notebook-based machine learning prototype into a structured MLOps pipeline.
+
+This project implements a reproducible machine learning training pipeline using GitHub Actions and Dagger.
+The pipeline automatically updates the dataset, trains a model, and validates the result on every change to the main branch.
+
 
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
+.
 ├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+│   └── raw
+│       ├── data/                 # raw dataset files
+│       └── raw_data.csv.dvc      # DVC-tracked raw dataset
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── docs
+│   ├── diagrams.excalidraw       # editable architecture diagrams
+│   ├── docs
+│   │   └── index.md              # mkdocs main page
+│   ├── mkdocs.yml                # mkdocs configuration
+│   ├── project-architecture.png  # rendered architecture diagram
+│   └── README.md                 # documentation-specific README
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
+├── go
+│   ├── go.mod                    # Go module definition
+│   ├── go.sum                    # Go dependencies lockfile
+│   └── pipeline.go               # Dagger pipeline definition
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── itu_sdse_project
+│   ├── __init__.py
+│   ├── dataset.py                # dataset loading / preparation
+│   ├── features.py               # feature engineering
+│   └── modeling
+│       ├── __init__.py
+│       └── train.py              # model training script
 │
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         itu_sdse_project and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── itu_sdse_project   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes itu_sdse_project a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+├── Makefile                      
+├── model
+│   └── model.pkl                 # trained model artifact (CI output) / not tracked by git / 
+├── pyproject.toml                # project & tooling configuration
+├── requirements.txt              # Python dependencies
+└── README.md                     
 ```
 
---------
+
+## Dagger Workflow
+
+The Dagger workflow is implemented in Go and located in the `go/`.
+It defines a pipeline for handling:
+- Setting up the Python environment
+- Installing dependencies
+- Runnning the python code
+- Producing a trained model artifact
+
+- Run locally:
+    - cd go
+    - go run .
+
+## GitHub Actions
+
+GitHub Actions were used to automate the workflow:
+- The Dagger pipeline is executed in CI
+- The trained model is uploaded as a GitHub artifact named `model`
+- The provided model validation action is used to test the trained model
+
+- Trigger - Runs automatically on:
+    - pushes to the `main` branch
+    - pull requests targeting `main`
+- Jobs:
+    - train
+    - validate
+
 
